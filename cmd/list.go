@@ -1,1 +1,0 @@
-// Command for listing stored credentials
