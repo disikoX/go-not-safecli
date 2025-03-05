@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jedib0t/go-pretty/v6/table"
+	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/joho/godotenv"
 	"github.com/urfave/cli/v3"
 )
@@ -56,28 +58,28 @@ func initDB(ctx context.Context) (*pgxpool.Pool, error) {
 }
 
 // Function to add e-mail and password
-func createAction(dbPool *pgxpool.Pool, text string) error {
+func createAction(pool *pgxpool.Pool, email, password string) error {
 	sql := `
 		INSERT INTO users_information (email, password)
-		VALUES ($1,$2)
+		VALUES ($1, $2)
 		RETURNING user_id
 	`
 	var id int
-	err := pool.QueryRow(ctx, sql, text, false).Scan(&id)
+	err := pool.QueryRow(ctx, sql, email, password).Scan(&id)
 	if err != nil {
 		return fmt.Errorf("error creating e-mail and password: %w", err)
 	}
 
-	fmt.Printf("Created e-mail and password: %d\n", id)
+	fmt.Println("E-mail and password created")
 	return nil
 }
 
 // function to show all the e-mail and password
-func getAllAction(dbPool *pgxpool.Pool) ([]User, error) {
+func getAllAction(pool *pgxpool.Pool) ([]User, error) {
 	sql := `
 	SELECT user_id, email, password
 	FROM users_information
-	ORDER BY id
+	ORDER BY user_id
 	`
 	rows, err := pool.Query(ctx, sql) // Query to execute `SELECT` statement that returns multiple rows
 	if err != nil {
@@ -104,7 +106,23 @@ func getAllAction(dbPool *pgxpool.Pool) ([]User, error) {
 	}
 
 	return users, nil
+}
 
+// function to delete email and password
+func deleteAction(pool *pgxpool.Pool, id int) error {
+	sql := `DELETE FROM users_information WHERE user_id = $1`
+
+	del, err := pool.Exec(ctx, sql, id)
+	if err != nil {
+		return fmt.Errorf("error deleting user information: %w", err)
+	}
+
+	if del.RowsAffected() == 0 {
+		return fmt.Errorf("no user information found with id %d", id)
+	}
+
+	fmt.Printf("user %d has been deleted successfully\n", id)
+	return nil
 }
 
 // function to print the email and the password of an user
@@ -114,13 +132,17 @@ func printAction(users []User) {
 		return
 	}
 
+	t := table.NewWriter()
+	t.SetTitle("Users information")
+	t.Style().Format.Header = text.FormatTitle
+
+	t.AppendHeader(table.Row{"ID", "Email", "Password"})
+
 	for _, user := range users {
-		fmt.Printf("%s, %s \n",
-			user.Email,
-			user.Password,
-		)
+		t.AppendRow(table.Row{user.ID, user.Email, user.Password})
 	}
 
+	fmt.Println(t.Render())
 }
 
 func main() {
@@ -150,7 +172,7 @@ func main() {
 		Action: func(ctx context.Context, cmd *cli.Command) error {
 			dbPool, err := initDB(ctx)
 			if err != nil {
-				log.Fatalf("Database initialization failed: %v", err)
+				log.Fatalf("Database initialization failed: %v\n", err)
 			} else {
 				fmt.Println("Success")
 			}
@@ -163,11 +185,31 @@ func main() {
 				Aliases: []string{"a"},
 				Usage:   "Add new email and password",
 				Action: func(c context.Context, cmd *cli.Command) error {
-					text := cmd.Args().First()
-					if text == "" {
+					args := cmd.Args().Slice()
+					if len(args) < 2 {
 						return fmt.Errorf("email and password cannot be empty")
 					}
-					return createAction(dbPool, text)
+					email := args[0]
+					password := args[1]
+					return createAction(dbPool, email, password)
+				},
+			},
+
+			{
+				Name:    "rm",
+				Aliases: []string{"r"},
+				Action: func(ctx context.Context, c *cli.Command) error {
+					idStr := c.Args().First()
+					if idStr == "" {
+						return fmt.Errorf("user's ID required")
+					}
+
+					var id int
+					if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
+						return fmt.Errorf("invalid task ID: %s", idStr)
+					}
+
+					return deleteAction(dbPool, id)
 				},
 			},
 
@@ -180,7 +222,6 @@ func main() {
 					if err != nil {
 						return err
 					}
-					fmt.Println("All user information:")
 					printAction(users)
 					return nil
 				},
