@@ -125,6 +125,25 @@ func deleteAction(pool *pgxpool.Pool, id int) error {
 	return nil
 }
 
+// function to modify email and password
+func changeAction(pool *pgxpool.Pool, id int, email, password string) error {
+	sql := `UPDATE users_information
+			SET email = $1, password = $2
+			WHERE user_id = $3
+			RETURNING *
+	`
+	change, err := pool.Exec(ctx, sql, email, password, id)
+	if err != nil {
+		return fmt.Errorf("error updating the email and the password: %w", err)
+	}
+
+	if change.RowsAffected() == 0 {
+		return fmt.Errorf("no user's found with id: %d", id)
+	}
+
+	return nil
+}
+
 // function to print the email and the password of an user
 func printAction(users []User) {
 	if len(users) == 0 {
@@ -182,7 +201,7 @@ func main() {
 		Commands: []*cli.Command{
 			{
 				Name:    "add",
-				Aliases: []string{"a"},
+				Aliases: []string{"-a"},
 				Usage:   "Add new email and password",
 				Action: func(c context.Context, cmd *cli.Command) error {
 					args := cmd.Args().Slice()
@@ -197,7 +216,8 @@ func main() {
 
 			{
 				Name:    "rm",
-				Aliases: []string{"r"},
+				Aliases: []string{"-r"},
+				Usage:   "Remove the user's information",
 				Action: func(ctx context.Context, c *cli.Command) error {
 					idStr := c.Args().First()
 					if idStr == "" {
@@ -206,10 +226,35 @@ func main() {
 
 					var id int
 					if _, err := fmt.Sscanf(idStr, "%d", &id); err != nil {
-						return fmt.Errorf("invalid task ID: %s", idStr)
+						return fmt.Errorf("invalid user ID: %s", idStr)
 					}
 
 					return deleteAction(dbPool, id)
+				},
+			},
+
+			{
+				Name:    "md",
+				Aliases: []string{"-m"},
+				Usage:   "Modify password and email",
+				Action: func(ctx context.Context, cmd *cli.Command) error {
+					args := cmd.Args().Slice()
+					if len(args) < 2 {
+						return fmt.Errorf("email and password cannot be empty")
+					}
+
+					var id int
+					args_id := cmd.Args().First()
+					if args_id == "" {
+						return fmt.Errorf("user's ID required")
+					}
+					if _, err := fmt.Sscanf(args_id, "%d", &id); err != nil {
+						return fmt.Errorf("invalid user's ID: %s", args_id)
+					}
+
+					email := args[1]
+					password := args[2]
+					return changeAction(dbPool, id, email, password)
 				},
 			},
 
