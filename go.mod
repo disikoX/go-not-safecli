@@ -1,4 +1,4 @@
-module go-safecli
+module go-not-safecli
 
 go 1.23.5
 
