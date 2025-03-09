@@ -81,7 +81,7 @@ func getAllAction(pool *pgxpool.Pool) ([]User, error) {
 	FROM users_information
 	ORDER BY user_id
 	`
-	rows, err := pool.Query(ctx, sql) // Query to execute `SELECT` statement that returns multiple rows
+	rows, err := pool.Query(ctx, sql) // to execute `SELECT` statement that returns multiple rows
 	if err != nil {
 		return nil, fmt.Errorf("error querying users_information: %w", err)
 	}
@@ -188,16 +188,6 @@ func main() {
 	app := &cli.Command{
 		Name:  "go-safecli",
 		Usage: " simple CLI tool for simply storing and managing passwords and email credentials",
-		Action: func(ctx context.Context, cmd *cli.Command) error {
-			dbPool, err := initDB(ctx)
-			if err != nil {
-				log.Fatalf("Database initialization failed: %v\n", err)
-			} else {
-				fmt.Println("Success")
-			}
-			defer dbPool.Close()
-			return nil
-		},
 		Commands: []*cli.Command{
 			{
 				Name:    "add",
