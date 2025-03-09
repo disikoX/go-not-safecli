@@ -1,1 +1,1 @@
-# go-safecli
+# go-not-safecli
