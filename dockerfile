@@ -11,5 +11,5 @@ FROM golang:alpine
  RUN go build -o go-not-safecli
 
 
- # Define the command to run your application
+ # Define the command to run application
  ENTRYPOINT [ "./go-not-safecli" ]
