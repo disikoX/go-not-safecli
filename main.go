@@ -186,7 +186,7 @@ func main() {
 	}()
 
 	app := &cli.Command{
-		Name:  "go-safecli",
+		Name:  "go-not-safecli",
 		Usage: " simple CLI tool for simply storing and managing passwords and email credentials",
 		Commands: []*cli.Command{
 			{
