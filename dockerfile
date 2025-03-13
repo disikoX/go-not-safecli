@@ -7,9 +7,12 @@ FROM golang:alpine
  # Copy the local package files to the container's workspace
  COPY . /app
 
+ # Install Go dependencies
+ RUN go mod download
+
  # Build the Go application inside container
  RUN go build -o go-not-safecli
 
 
  # Define the command to run application
- ENTRYPOINT [ "./go-not-safecli" ]
+ ENTRYPOINT [ "./go-not-safecli" ] 
