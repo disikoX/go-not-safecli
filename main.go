@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/mail"
 	"os"
 	"os/signal"
 	"time"
@@ -31,7 +32,7 @@ func initDB(ctx context.Context) (*pgxpool.Pool, error) {
 	_ = godotenv.Load(".env")
 
 	// Initialize the connection Pool
-	config, err := pgxpool.ParseConfig(os.Getenv("database_url"))
+	config, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
 	if err != nil {
 		return nil, fmt.Errorf("unable to connect to the database: %w", err)
 	}
@@ -64,8 +65,13 @@ func createAction(pool *pgxpool.Pool, email, password string) error {
 		VALUES ($1, $2)
 		RETURNING user_id
 	`
+	e, err := mail.ParseAddress(email)
+	if err != nil {
+		return fmt.Errorf("error incorrect mail format")
+	}
+
 	var id int
-	err := pool.QueryRow(ctx, sql, email, password).Scan(&id)
+	err = pool.QueryRow(ctx, sql, e, password).Scan(&id)
 	if err != nil {
 		return fmt.Errorf("error creating e-mail and password: %w", err)
 	}
@@ -191,7 +197,7 @@ func main() {
 		Commands: []*cli.Command{
 			{
 				Name:    "add",
-				Aliases: []string{"-a"},
+				Aliases: []string{"a"},
 				Usage:   "Add new email and password",
 				Action: func(c context.Context, cmd *cli.Command) error {
 					args := cmd.Args().Slice()
@@ -206,7 +212,7 @@ func main() {
 
 			{
 				Name:    "rm",
-				Aliases: []string{"-r"},
+				Aliases: []string{"r"},
 				Usage:   "Remove the user's information",
 				Action: func(ctx context.Context, c *cli.Command) error {
 					idStr := c.Args().First()
@@ -225,7 +231,7 @@ func main() {
 
 			{
 				Name:    "md",
-				Aliases: []string{"-m"},
+				Aliases: []string{"m"},
 				Usage:   "Modify password and email",
 				Action: func(ctx context.Context, cmd *cli.Command) error {
 					args := cmd.Args().Slice()
