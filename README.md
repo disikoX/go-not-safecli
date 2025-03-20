@@ -1,8 +1,8 @@
 # go-not-safecli
 
 ****
-
-⚠️ **DISCLAIMER : THIS PROJECT IS FOR LEARNING PURPOSE ONLY DO NOT USE IT TO STORE SENSITIVE INFORMATION** ⚠️ 
+[!warning] DISCLAIMER 
+THIS PROJECT IS FOR LEARNING PURPOSE ONLY DO NOT USE IT TO STORE SENSITIVE INFORMATION
 
 go-not-safe-cli is a simple command-line application designed for storing email and password credentials.
 
@@ -24,16 +24,30 @@ To install and run the # go-not-safecli, follow these steps:
     cd go-not-safe-cli
     ```
 
-2. Build and run the Docker containers using Docker Compose:
+2. Create a `.env` file that looks like this:
+
+    ```bash
+    host     = ""
+    port     = 
+    user     = ""
+    password = ""
+    dbname   = ""
+    database_url = "postgres://username:dbname@host:port/password"
+    ```
+or replace the `environement` part in the `compose.yaml` with your `Postgresql` configuration:
+
+```yaml
+environment:
+      POSTGRES_USER: <your_username>
+      POSTGRES_PASSWORD: <your_password>
+      POSTGRES_DB: <your_database_name>
+```
+
+3. Build and run the Docker containers using Docker Compose:
 
     ```bash
     docker compose up --build
     ```
-
-
-
-
-
 
 ## Usage
 
