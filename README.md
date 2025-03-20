@@ -1,7 +1,7 @@
 # go-not-safecli
 
-[!WARNING] 
-THIS PROJECT IS FOR LEARNING PURPOSE ONLY DO NOT USE IT TO STORE SENSITIVE INFORMATION
+> [!WARNING]
+>THIS PROJECT IS FOR LEARNING PURPOSE ONLY DO NOT USE IT TO STORE SENSITIVE INFORMATION
 
 go-not-safe-cli is a simple command-line application designed for storing email and password credentials.
 
