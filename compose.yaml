@@ -2,15 +2,6 @@
 
 
 services:
-  safe:
-    build: .
-    env_file:
-      - .env
-    environment:
-      DATABASE_URL: ${database_url}
-    depends_on:
-      - db 
-
   db:
     image: postgres:latest
     env_file:
@@ -19,10 +10,12 @@ services:
       POSTGRES_USER: ${user}
       POSTGRES_PASSWORD: ${password}
       POSTGRES_DB: ${dbname}
-    # ports: 
-    #   - 54325:5432
+      DATABASE_URL: ${database_url}
     volumes:
-      - postgres_data:/var/lib/postgresql/data 
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql 
+    ports:
+      - 54322:5432  
 
 volumes:
   postgres_data:
