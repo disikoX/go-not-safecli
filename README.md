@@ -7,12 +7,12 @@ go-not-safe-cli is a simple command-line application designed for storing email 
 
 ## Installation
 
-To install and run the # go-not-safecli, follow these steps:
+To install and run go-not-safecli, follow these steps:
 
 ### Prerequisites
 
-- Docker
-- Docker Compose
+- Go version 1.20 and above
+- PostgreSQL
 
 ### Steps
 
@@ -33,19 +33,26 @@ To install and run the # go-not-safecli, follow these steps:
     dbname   = ""
     database_url = "postgres://username:dbname@host:port/password"
     ```
-or replace the `environement` part in the `compose.yaml` with your `Postgresql` configuration:
 
-```yaml
-environment:
-      POSTGRES_USER: <your_username>
-      POSTGRES_PASSWORD: <your_password>
-      POSTGRES_DB: <your_database_name>
-```
-
-3. Build and run the Docker containers using Docker Compose:
+3. Install all the Go dependencies with :
 
     ```bash
-    docker compose up --build
+    go mod download
+    ```
+
+3. Build the app with :
+
+    ```bash
+    go build -o go-not-safecli
+    
+    ```
+
+3. Run the app with :
+
+    ```bash
+    go build -o go-not-safecli
+    chmod +x go-not-safecli 
+    
     ```
 
 ## Usage
@@ -57,14 +64,14 @@ Once the application is running, you can use the following commands:
 To add a new email and password, use the following command:
 
 ```bash
-go-not-safe-cli add <your_email> <your_password>
+./go-not-safe-cli add <your_email> <your_password>
 ```
 
 ### Show Credentials
 
 To show credentials in a table, use the following command:
 ```bash
-go-not-safe-cli all 
+./go-not-safe-cli all 
 ```
 
 ### Remove Credentials
@@ -72,7 +79,7 @@ go-not-safe-cli all
 To remove an existing email and password, use the following command:
 
 ```bash
-go-not-safe-cli rm <your_id> 
+./go-not-safe-cli rm <your_id> 
 ```
 
 ### Modify Credentials
@@ -80,7 +87,7 @@ go-not-safe-cli rm <your_id>
 To modify an existing email and password, use the following command:
 
 ```bash
-go-not-safe-cli md <your_id> <your_email> <your_password>
+./go-not-safe-cli md <your_id> <your_email> <your_password>
 ```
 
 ## Contributing
