@@ -29,7 +29,7 @@ type User struct {
 func initDB(ctx context.Context) (*pgxpool.Pool, error) {
 
 	// Load the .env file
-	_ = godotenv.Load(".env")
+	_ = godotenv.Load()
 
 	// Initialize the connection Pool
 	config, err := pgxpool.ParseConfig(os.Getenv("DATABASE_URL"))
