@@ -50,8 +50,8 @@ To install and run go-not-safecli, follow these steps:
 3. Run the app with :
 
     ```bash
-    go build -o go-not-safecli
     chmod +x go-not-safecli 
+    ./go-not-safecli
     
     ```
 
